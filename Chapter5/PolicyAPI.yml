@@ -1,0 +1,140 @@
+openapi: '3.0.2'
+info:
+  title: Policy API
+  description: API endpoint for the Policy subsystem
+  version: '1.0'
+servers:
+  - url: https://api.packt.com/v1
+tags:
+  - name: Policy API
+externalDocs:
+  url: https://api-docs.packt.com/apis/policyapis
+  description: developer documenatation of the policy api
+paths:
+  /policies:
+    post:
+      tags:
+        - Create Policy
+      summary: Create a Policy
+      description: creates a policy based on the information passed
+      operationId: createpolicy
+      requestBody:
+        description: Policy Document Object
+        content:
+          application/json:
+            schema:
+              $ref:  "#/components/schemas/PolicyDocument"   
+      responses:
+        200:
+          description: id of the policy record
+          content:
+            application/text:
+              schema:
+                type: string
+    get:
+      tags:
+        - Get Policies
+      summary: Get the collection of Policies
+      description: returns a list of policies in the system 
+      operationId: getpolicy
+      parameters:
+        - name: limit
+          in: query 
+          description: 'count of records to be returned'
+          required: false
+          schema:
+            type: integer
+            default: 100
+        - name: offset
+          in: query
+          description: 'starting offset for the query'
+          required: false
+          schema:
+            type: integer
+            default: 0    
+      responses:
+        200:
+          description: Collection of Policies
+          content:
+            application/json:
+              schema:
+                $ref:  "#/components/schemas/Policies"
+  /policies/{id}:
+    parameters:
+      - name: id
+        in: path 
+        description: 'Id of the policy record'
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Policy by Id
+      summary: Get the Policy by Id
+      description: returns the specified policy  
+      operationId: getpolicybyid
+      responses:
+        200:
+          description: Policy Document
+          content:
+            application/json:
+              schema:
+                $ref:  "#/components/schemas/PolicyDocument"
+        402:
+          description: Unauthorized access
+          content:
+            application/text:
+              schema:
+                type: string
+              example: User is not allowed to access this policy.
+        404:
+          description: Not found
+          content:
+            application/text:
+              schema:
+                type: string
+              example: The specified policy does not exist.
+components:
+  schemas:
+    Policies:
+      type: array
+      items:
+        properties:
+          PolicyDocument:
+            type: object
+            properties:
+              policyId:
+                type: string
+                example: "POL-COMP-1234567-I"
+              dateissued:
+                type: string
+    PolicyDocument:
+      type: object
+      properties:
+            policyId:
+              type: string
+              example: "POL-COMP-1234567-I"
+            customerId:
+              type: string
+              example: "IND123459873457CR"
+            dateissued:
+              type: string
+  securitySchemes:
+    name:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: 'https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/token'
+          tokenUrl: 'https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/token'
+          scopes:
+            read:policy: read
+            write:policy: write
+security:
+  - api_auth:
+    - write:policy
+    - read:policy 
+  
+
+
+  
+  
